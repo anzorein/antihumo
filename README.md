@@ -28,6 +28,14 @@ La extensión **no trae una clave de API incluida**. Necesitás una clave propia
 3. Tocá **Cargar descomprimida** y seleccioná la carpeta de este repositorio.
 4. Tocá el ícono de AntiHumo en la barra, abrí el popup y pegá tu [clave de Groq](https://console.groq.com/keys).
 
+### Instalación temporal (pruebas / desarrollo)
+
+Sin firmar, para probar cambios sin pasar por AMO:
+
+- **Firefox**: abrí `about:debugging#/runtime/this-firefox` → **Cargar complemento temporal** → seleccioná el `manifest.json` del repo.
+  El complemento se desactiva al cerrar Firefox; es solo para desarrollo.
+- **Chrome**: es la misma opción de *Load unpacked* de arriba; la extensión carga descomprimida y permanece instalada aunque no esté "firmada".
+
 ## Configuración
 
 Abrí el popup de la extensión > **Tu clave API de Groq (opcional)**:
@@ -53,17 +61,14 @@ manifest.json                 # Declaración de la extensión
 Para firmar con [web-ext](https://extensionworkshop.com/documentation/develop/getting-started-with-web-ext/):
 
 ```bash
-export WEB_EXT_API_KEY="user:TU_ISSUER"
-export WEB_EXT_API_SECRET="TU_SECRETO"
-web-ext sign --source-dir ./ --artifacts-dir ./dist --channel unlisted
+web-ext sign --source-dir ./ --artifacts-dir ./dist --channel unlisted \
+  --api-key "user:TU_ISSUER" --api-secret "TU_SECRETO"
 ```
 
 En Windows:
 
 ```powershell
-$env:WEB_EXT_API_KEY = "user:TU_ISSUER"
-$env:WEB_EXT_API_SECRET = "TU_SECRETO"
-web-ext sign --source-dir . --artifacts-dir .\dist --channel unlisted
+web-ext sign --source-dir . --artifacts-dir .\dist --channel unlisted --api-key "user:TU_ISSUER" --api-secret "TU_SECRETO"
 ```
 
 > **Importante:** no guardés tu clave de API dentro de la carpeta del repositorio: `web-ext` empaqueta todo el contenido del directorio, y AMO rechaza los archivos que contienen credenciales.
