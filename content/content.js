@@ -9,7 +9,6 @@
   }
   window.__ANTIHUMO_ACTIVE__ = true;
 
-  let buttonEl = document.getElementById('ah-fab');
   let overlayEl = document.getElementById('ah-overlay');
   let analyzing = false;
 
@@ -89,31 +88,7 @@
     return text;
   }
 
-  function injectButton() {
-    if (buttonEl) {
-      buttonEl.addEventListener('click', onFABClick);
-      return;
-    }
-
-    buttonEl = document.createElement('button');
-    buttonEl.id = 'ah-fab';
-    buttonEl.type = 'button';
-    buttonEl.title = '¿Es clickbait? Analizá con AntiHumo';
-    buttonEl.setAttribute('aria-label', buttonEl.title);
-    buttonEl.innerHTML = `
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
-        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="11" cy="11" r="8"></circle>
-        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        <line x1="11" y1="8" x2="11" y2="14"></line>
-        <line x1="8" y1="11" x2="14" y2="11"></line>
-      </svg>
-    `;
-    buttonEl.addEventListener('click', onFABClick);
-    document.body.appendChild(buttonEl);
-  }
-
-  function onFABClick() {
+  function triggerAnalysis() {
     if (analyzing) return;
     analyzing = true;
 
@@ -212,7 +187,6 @@
 
   function hideOverlay() {
     if (overlayEl) overlayEl.classList.remove('ah-visible');
-    if (buttonEl) buttonEl.style.display = 'flex';
   }
 
   function esc(str) {
@@ -235,7 +209,6 @@
     });
   }
 
-  injectButton();
-  window.__ANTIHUMO_TRIGGER__ = onFABClick;
-  onFABClick();
+  window.__ANTIHUMO_TRIGGER__ = triggerAnalysis;
+  triggerAnalysis();
 })();

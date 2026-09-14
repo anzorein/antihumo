@@ -1,31 +1,3 @@
-#ah-fab {
-  position: fixed;
-  right: 22px;
-  bottom: 22px;
-  z-index: 2147483647;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #dc2626;
-  color: #ffffff;
-  box-shadow: 0 6px 22px rgba(220, 38, 38, 0.45);
-  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
-  font-family: inherit;
-}
-#ah-fab:hover {
-  background: #b91c1c;
-  transform: scale(1.08);
-  box-shadow: 0 8px 28px rgba(220, 38, 38, 0.55);
-}
-#ah-fab:active {
-  transform: scale(0.95);
-}
-
 #ah-overlay {
   position: fixed;
   top: 0;
