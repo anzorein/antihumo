@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "AntiHumo — Detector de Clickbait",
+  "version": "0.2.0",
+  "description": "Tocá el ícono y descubrí si el título de la nota es humo o verdá. Funciona en cualquier web de noticias.",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": ["https://api.groq.com/*"],
+  "action": {
+    "default_title": "AntiHumo — Analizar esta página",
+    "default_icon": {
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background/service-worker.js",
+    "scripts": ["background/service-worker.js"]
+  },
+  "options_ui": {
+    "page": "popup/popup.html",
+    "open_in_tab": true
+  },
+  "icons": {
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  }
+}

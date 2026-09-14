@@ -1,0 +1,179 @@
+#ah-fab {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 2147483647;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #dc2626;
+  color: #ffffff;
+  box-shadow: 0 6px 22px rgba(220, 38, 38, 0.45);
+  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  font-family: inherit;
+}
+#ah-fab:hover {
+  background: #b91c1c;
+  transform: scale(1.08);
+  box-shadow: 0 8px 28px rgba(220, 38, 38, 0.55);
+}
+#ah-fab:active {
+  transform: scale(0.95);
+}
+
+#ah-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2147483646;
+  display: flex;
+  justify-content: center;
+  padding: 14px 16px 0;
+  pointer-events: none;
+}
+#ah-overlay.ah-visible .ah-card {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+}
+.ah-close,
+.ah-title,
+.ah-body,
+.ah-sub,
+.ah-spinner,
+.ah-icon {
+  all: unset;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.ah-card {
+  pointer-events: auto;
+  position: relative;
+  max-width: 620px;
+  width: 100%;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.22);
+  transform: translateY(-18px);
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease, visibility 0.28s;
+  animation: ah-slide 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes ah-slide {
+  from {
+    transform: translateY(-18px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.ah-icon {
+  font-size: 26px;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+.ah-texts {
+  flex: 1;
+  min-width: 0;
+}
+
+.ah-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  margin: 2px 0 6px;
+}
+
+.ah-sub {
+  display: block;
+  font-size: 13px;
+  font-style: italic;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.ah-body {
+  display: block;
+  font-size: 15px;
+  line-height: 1.55;
+  color: #1f2937;
+  font-weight: 400;
+}
+
+.ah-badge {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+.ah-badge-humo {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+.ah-badge-verdad {
+  background: #d1fae5;
+  color: #047857;
+}
+
+.ah-close {
+  cursor: pointer;
+  font-size: 15px;
+  color: #9ca3af;
+  background: none;
+  border: none;
+  padding: 4px 6px;
+  line-height: 1;
+  flex-shrink: 0;
+  border-radius: 6px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.ah-close:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.ah-loading .ah-icon {
+  display: none;
+}
+
+.ah-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid #fecaca;
+  border-top-color: #dc2626;
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: ah-spin 0.8s linear infinite;
+  margin-top: 2px;
+}
+@keyframes ah-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ah-error .ah-title {
+  color: #b91c1c;
+}

@@ -1,0 +1,160 @@
+body {
+  width: 300px;
+  margin: 0;
+  padding: 18px 16px 14px;
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: #ffffff;
+  color: #111827;
+}
+
+.logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2px;
+}
+
+h1 {
+  text-align: center;
+  font-size: 20px;
+  margin: 4px 0 0;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.tagline {
+  text-align: center;
+  font-size: 12px;
+  color: #6b7280;
+  margin: 2px 0 14px;
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #f59e0b;
+  flex-shrink: 0;
+}
+.dot.ok {
+  background: #10b981;
+}
+.dot.bad {
+  background: #ef4444;
+}
+
+label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.input-row {
+  display: flex;
+  gap: 6px;
+}
+
+input[type="password"] {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+input[type="password"]:focus {
+  border-color: #dc2626;
+}
+
+#toggle-visibility {
+  width: 36px;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+#toggle-visibility:hover {
+  background: #f3f4f6;
+}
+
+.btn-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.btn-save {
+  flex: 1;
+  padding: 9px 0;
+  border: none;
+  border-radius: 8px;
+  background: #dc2626;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.btn-save:hover {
+  background: #b91c1c;
+}
+
+.btn-reset {
+  flex: 1;
+  padding: 9px 0;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #374151;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.btn-reset:hover {
+  background: #f3f4f6;
+}
+
+.msg {
+  min-height: 16px;
+  font-size: 12px;
+  color: #10b981;
+  margin: 10px 0 0;
+  text-align: center;
+}
+.msg.err {
+  color: #dc2626;
+}
+
+footer {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #f3f4f6;
+  font-size: 11px;
+  color: #9ca3af;
+  text-align: center;
+  line-height: 1.6;
+}
+
+footer a {
+  color: #dc2626;
+  text-decoration: none;
+  font-weight: 600;
+}
+footer a:hover {
+  text-decoration: underline;
+}
