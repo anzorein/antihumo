@@ -67,7 +67,7 @@ label {
   gap: 6px;
 }
 
-input[type="password"] {
+#api-key {
   flex: 1;
   padding: 8px 10px;
   border: 1px solid #d1d5db;
@@ -76,7 +76,7 @@ input[type="password"] {
   outline: none;
   transition: border-color 0.15s ease;
 }
-input[type="password"]:focus {
+#api-key:focus {
   border-color: #dc2626;
 }
 
@@ -127,6 +127,27 @@ input[type="password"]:focus {
 }
 .btn-reset:hover {
   background: #f3f4f6;
+}
+
+.btn-test {
+  width: 100%;
+  margin-top: 8px;
+  padding: 9px 0;
+  border: 1px solid #dc2626;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.btn-test:hover:not(:disabled) {
+  background: #fee2e2;
+}
+.btn-test:disabled {
+  opacity: 0.6;
+  cursor: wait;
 }
 
 .msg {

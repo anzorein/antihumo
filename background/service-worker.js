@@ -1,7 +1,6 @@
-const DEFAULT_API_KEY = '';
-const DEFAULT_MODEL = 'qwen/qwen3.6-27b';
+const DEFAULT_MODEL = 'openai/gpt-oss-20b';
+const FALLBACK_MODELS = ['openai/gpt-oss-120b'];
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const GROQ_ORIGIN = 'https://api.groq.com';
 
 const api = (typeof browser !== 'undefined' && browser.runtime) ? browser : chrome;
 
@@ -23,52 +22,118 @@ async function getApiKey() {
     const data = await api.storage.local.get('apiKey');
     if (data.apiKey) return data.apiKey;
   } catch {}
-  throw new Error('No API key configured. Open the extension popup and enter your Groq API key.');
+  throw new Error('NO_API_KEY: no hay clave API configurada.');
+}
+
+function buildRequestBody(model, title, body) {
+  return {
+    model,
+    messages: [
+      {
+        role: 'user',
+        content: ANTIHUMO_PROMPT + '\n\nTítulo: ' + title + '\n\nContenido de la nota:\n' + body
+      }
+    ],
+    reasoning_effort: 'low',
+    include_reasoning: false,
+    temperature: 0.6,
+    top_p: 0.95,
+    max_completion_tokens: 400
+  };
+}
+
+function cleanAnswer(text) {
+  return String(text || '')
+    .replace(/<think>[\s\S]*?<\/think>/gi, '')
+    .trim();
+}
+
+function parseVerdict(answer) {
+  let m = answer.match(/\[VEREDICTO:\s*(HUMO|VERDAD)\]/i);
+  if (m) return m[1].toUpperCase();
+  m = answer.match(/VEREDICTO:\s*(HUMO|VERDAD)/i);
+  if (m) return m[1].toUpperCase();
+  return null;
+}
+
+function isModelGone(status, info) {
+  if (status === 404) return true;
+  return /model_not_found|model_not_supported|decommission|does not exist|not found/i.test(info || '');
+}
+
+async function tryModel(apiKey, model, title, truncatedBody) {
+  let response;
+  try {
+    response = await fetch(GROQ_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + apiKey,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(buildRequestBody(model, title, truncatedBody))
+    });
+  } catch (e) {
+    throw new Error('NETWORK: ' + String((e && e.message) || e));
+  }
+
+  if (!response.ok) {
+    let detail;
+    try {
+      const j = await response.json();
+      detail = (j && j.error && j.error.message) || JSON.stringify(j);
+    } catch {
+      detail = response.statusText;
+    }
+    const info = 'HTTP ' + response.status + ': ' + detail;
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('BAD_KEY: ' + info);
+    }
+    if (response.status === 429) {
+      const err = new Error('RATE_LIMIT: ' + info);
+      err.retryWithFallback = true;
+      throw err;
+    }
+    if (isModelGone(response.status, info)) {
+      const err = new Error('MODEL_GONE: ' + model + ' (' + info + ')');
+      err.retryWithFallback = true;
+      throw err;
+    }
+    throw new Error('UPSTREAM: ' + info);
+  }
+
+  const data = await response.json();
+  const raw = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '';
+  const answer = cleanAnswer(raw);
+  if (!answer) {
+    const err = new Error('EMPTY_RESPONSE: el modelo devolvió una respuesta vacía.');
+    err.retryWithFallback = true;
+    throw err;
+  }
+
+  return { answer, verdict: parseVerdict(answer), model };
 }
 
 async function analyze(title, body) {
   const apiKey = await getApiKey();
   const truncatedBody = body.length > 6000 ? body.slice(0, 6000) : body;
 
-  const response = await fetch(GROQ_URL, {
-    method: 'POST',
-    headers: {
-      'Authorization': 'Bearer ' + apiKey,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      model: DEFAULT_MODEL,
-      reasoning_effort: 'none',
-      temperature: 0.3,
-      max_tokens: 250,
-      messages: [
-        { role: 'system', content: ANTIHUMO_PROMPT },
-        {
-          role: 'user',
-          content: 'Título: ' + title + '\n\nContenido de la nota:\n' + truncatedBody
-        }
-      ]
-    })
-  });
-
-  if (!response.ok) {
-    let body;
+  const models = [DEFAULT_MODEL, ...FALLBACK_MODELS];
+  let lastError = null;
+  for (const model of models) {
     try {
-      const j = await response.json();
-      body = j?.error?.message || JSON.stringify(j);
-    } catch {
-      body = response.statusText;
+      return await tryModel(apiKey, model, title, truncatedBody);
+    } catch (err) {
+      if (err && err.retryWithFallback) {
+        lastError = err;
+        continue;
+      }
+      throw err;
     }
-    throw new Error('HTTP ' + response.status + ': ' + body);
   }
-
-  const data = await response.json();
-  const answer = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '';
-
-  const verdictMatch = answer.match(/\[VEREDICTO:\s*(HUMO|VERDAD)\]/i);
-  const verdict = verdictMatch ? verdictMatch[1].toUpperCase() : null;
-
-  return { answer, verdict };
+  throw new Error(
+    'MODEL_UNAVAILABLE: ningún modelo respondió (' + models.join(', ') + '). ' +
+    String((lastError && lastError.message) || '')
+  );
 }
 
 async function injectIntoTab(tabId) {
@@ -90,6 +155,13 @@ api.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     analyze(msg.title, msg.body)
       .then((res) => sendResponse(res))
       .catch((err) => sendResponse({ error: String(err.message || err) }));
+    return true;
+  }
+  if (msg && msg.action === 'openOptions') {
+    Promise.resolve()
+      .then(() => api.runtime.openOptionsPage())
+      .then(() => sendResponse({ ok: true }))
+      .catch((err) => sendResponse({ error: String((err && err.message) || err) }));
     return true;
   }
 });

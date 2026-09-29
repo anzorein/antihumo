@@ -8,7 +8,23 @@ const input = document.getElementById('api-key');
 const toggleBtn = document.getElementById('toggle-visibility');
 const saveBtn = document.getElementById('save');
 const resetBtn = document.getElementById('reset');
+const testBtn = document.getElementById('test');
 const msg = document.getElementById('msg');
+
+const TEST_TITLE = 'Prueba de conexión de AntiHumo';
+const TEST_BODY = 'Esta es una prueba de conexión. El Congreso aprobó por unanimidad una ley de educación vial. La norma, votada por todos los bloques, entrará en vigencia el próximo ciclo lectivo según informó el Ministerio.';
+
+function runtimeSendMessage(message) {
+  if (typeof browser !== 'undefined' && browser.runtime) {
+    return browser.runtime.sendMessage(message);
+  }
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage(message, (res) => {
+      if (chrome.runtime.lastError) resolve({ error: chrome.runtime.lastError.message });
+      else resolve(res);
+    });
+  });
+}
 
 async function getStored() {
   return api.storage.local.get('apiKey');
@@ -17,8 +33,8 @@ async function getStored() {
 async function checkKey() {
   const { apiKey } = await getStored();
   if (!apiKey || apiKey === DEFAULT_KEY_HINT) {
-    dot.className = 'dot ok';
-    statusText.textContent = 'Con la clave incluida. Todo listo.';
+    dot.className = 'dot';
+    statusText.textContent = 'Falta tu clave de Groq. Pegala abajo y guardala.';
     return;
   }
   try {
@@ -27,10 +43,10 @@ async function checkKey() {
     });
     if (res.ok) {
       dot.className = 'dot ok';
-      statusText.textContent = 'Clave propia configurada y funcando.';
+      statusText.textContent = 'Clave válida. Probá el análisis end-to-end abajo.';
     } else {
       dot.className = 'dot bad';
-      statusText.textContent = 'La clave propia no funciona. Revisala.';
+      statusText.textContent = 'La clave no funciona (HTTP ' + res.status + '). Revisala.';
     }
   } catch {
     dot.className = 'dot bad';
@@ -83,7 +99,26 @@ resetBtn.addEventListener('click', async () => {
   await api.storage.local.remove('apiKey');
   input.value = '';
   checkKey();
-  showMsg('Volviste a la clave incluida.');
+  showMsg('Clave eliminada. Pegá una nueva para seguir usando AntiHumo.');
+});
+
+testBtn.addEventListener('click', async () => {
+  testBtn.disabled = true;
+  showMsg('Probando análisis real con el modelo…');
+  try {
+    const res = await runtimeSendMessage({ action: 'analyze', title: TEST_TITLE, body: TEST_BODY });
+    if (!res || res.error) {
+      showMsg('Falló: ' + ((res && res.error) || 'sin respuesta del background'), true);
+    } else {
+      const verdict = res.verdict ? ' (veredicto: ' + res.verdict + ')' : ' (sin veredicto parseable)';
+      showMsg('OK con ' + (res.model || 'modelo desconocido') + verdict);
+      dot.className = 'dot ok';
+      statusText.textContent = 'Análisis end-to-end funcionando.';
+    }
+  } catch (e) {
+    showMsg('Falló: ' + String((e && e.message) || e), true);
+  }
+  testBtn.disabled = false;
 });
 
 toggleBtn.addEventListener('click', () => {

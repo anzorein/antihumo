@@ -19,7 +19,8 @@
 .ah-body,
 .ah-sub,
 .ah-spinner,
-.ah-icon {
+.ah-icon,
+.ah-options {
   all: unset;
   box-sizing: border-box;
   font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -148,4 +149,19 @@
 
 .ah-error .ah-title {
   color: #b91c1c;
+}
+
+.ah-options {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: #dc2626;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.ah-options:hover {
+  background: #b91c1c;
 }

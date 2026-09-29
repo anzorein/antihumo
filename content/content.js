@@ -107,7 +107,7 @@
       .then((res) => {
         if (!res || res.error) {
           const e = (res && res.error) || 'Error desconocido';
-          showOverlay('error', formatError(e), title);
+          showOverlay('error', formatError(e), title, null, needsOptionsButton(e));
         } else {
           showOverlay('result', res.answer, title, res.verdict);
         }
@@ -122,6 +122,24 @@
 
   function formatError(err) {
     const s = String(err || '');
+    const sep = s.indexOf(':');
+    const code = (sep === -1 ? s : s.slice(0, sep)).trim().toUpperCase();
+    const detail = sep === -1 ? s : s.slice(sep + 1).trim();
+    if (code === 'NO_API_KEY') {
+      return 'Falta tu clave de Groq. Tocá "Abrir opciones" acá abajo y guardala.';
+    }
+    if (code === 'BAD_KEY') {
+      return 'Tu clave de Groq fue rechazada (401/403). Tocá "Abrir opciones" y revisala.';
+    }
+    if (code === 'RATE_LIMIT') {
+      return 'Se pasó el límite de consultas gratuitas por un ratito. Esperá unos minutos y volvé a intentar.';
+    }
+    if (code === 'MODEL_UNAVAILABLE') {
+      return 'Ningún modelo de IA está respondiendo ahora. ' + detail + ' Probá más tarde.';
+    }
+    if (code === 'NETWORK') {
+      return 'No se pudo conectar con Groq. Revisá tu conexión a internet.';
+    }
     if (/limit|429|quota|rate/i.test(s)) {
       return 'Se pasó el límite de consultas gratuitas por un ratito. Esperá unos minutos y volvé a intentar.';
     }
@@ -134,7 +152,20 @@
     return s;
   }
 
-  function showOverlay(status, text, title, verdict) {
+  function needsOptionsButton(err) {
+    const s = String(err || '');
+    const sep = s.indexOf(':');
+    const code = (sep === -1 ? '' : s.slice(0, sep)).trim().toUpperCase();
+    return code === 'NO_API_KEY' || code === 'BAD_KEY';
+  }
+
+  function cleanAnswer(text) {
+    return String(text || '')
+      .replace(/<think>[\s\S]*?<\/think>/gi, '')
+      .trim();
+  }
+
+  function showOverlay(status, text, title, verdict, showOptionsBtn) {
     if (!overlayEl) {
       overlayEl = document.createElement('div');
       overlayEl.id = 'ah-overlay';
@@ -142,6 +173,7 @@
     }
 
     overlayEl.dataset.status = status;
+    const clean = cleanAnswer(text);
 
     let content = '';
     if (status === 'loading') {
@@ -159,7 +191,8 @@
           <div class="ah-icon ah-icon-error">⚠️</div>
           <div class="ah-texts">
             <div class="ah-title">No se pudo analizar</div>
-            <div class="ah-body">${esc(text)}</div>
+            <div class="ah-body">${esc(clean)}</div>
+            ${showOptionsBtn ? '<button class="ah-options" data-ah-options="1">Abrir opciones</button>' : ''}
           </div>
           <button class="ah-close" data-ah-close="1" aria-label="Cerrar">✕</button>
         </div>`;
@@ -173,7 +206,7 @@
           <div class="ah-icon ${isHumo ? 'ah-icon-humo' : 'ah-icon-verdad'}">${isHumo ? '🔥' : '✅'}</div>
           <div class="ah-texts">
             <div class="ah-title">${badge}<span>AntiHumo dice:</span></div>
-            <div class="ah-body">${esc(text)}</div>
+            <div class="ah-body">${esc(clean)}</div>
           </div>
           <button class="ah-close" data-ah-close="1" aria-label="Cerrar">✕</button>
         </div>`;
@@ -183,6 +216,9 @@
     overlayEl.classList.add('ah-visible');
 
     overlayEl.querySelector('[data-ah-close]')?.addEventListener('click', hideOverlay);
+    overlayEl.querySelector('[data-ah-options]')?.addEventListener('click', () => {
+      runtimeSendMessage({ action: 'openOptions' });
+    });
   }
 
   function hideOverlay() {

@@ -1,3 +1,4 @@
 *.xpi
 /.amo-upload-uuid
 /*.bat
+/web-ext-artifacts/

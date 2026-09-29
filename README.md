@@ -19,7 +19,7 @@ La extensión **no trae una clave de API incluida**. Necesitás una clave propia
 2. En Firefox, abrí `about:addons`.
 3. Tocá el ícono de engranaje (arriba a la derecha) → **Instalar complemento desde archivo**.
 4. Seleccioná el `.xpi` firmado y confirmá la instalación.
-5. Tocá el ícono de AntiHumo en la barra, abrí el popup y pegá tu [clave de Groq](https://console.groq.com/keys).
+5. En `about:addons` → AntiHumo → **Opciones**, pegá tu [clave de Groq](https://console.groq.com/keys) y guardala. (El clic en el ícono de la barra analiza la página directamente; la configuración vive en la página de Opciones.)
 
 ### Chrome
 
@@ -38,10 +38,11 @@ Sin firmar, para probar cambios sin pasar por AMO:
 
 ## Configuración
 
-Abrí el popup de la extensión > **Tu clave API de Groq (opcional)**:
+Abrí la página de Opciones (`about:addons` → AntiHumo → **Opciones**) > **Tu clave API de Groq**:
 
-- **Guardar clave**: guarda tu clave personal; el popup verifica que funcione contra la API.
+- **Guardar clave**: guarda tu clave personal; la página verifica que funcione contra la API.
 - **Restablecer**: elimina la clave guardada.
+- **Probar análisis end-to-end**: hace un análisis real de prueba contra el modelo configurado (`openai/gpt-oss-20b`, con fallback a `openai/gpt-oss-120b`) para confirmar que todo el circuito funciona, no solo la clave.
 
 La clave se almacena localmente en el navegador (`chrome.storage.local`) y no sale de tu equipo.
 
